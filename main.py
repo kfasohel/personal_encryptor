@@ -13,7 +13,7 @@ def main():
     print(display_options())
 
     while True:
-        choice = input("Enter your choice, 1, 2, 3 or 4: ")
+        choice = input("Enter your choice, 1, 2, 3 or 4: ").strip()
         matches = re.search(r"^[1-3]{1}$", choice)
 
         if matches:
@@ -26,17 +26,19 @@ def main():
 
 def execute_option(option="", e_password=b""):
     if option == "1":
-        token, salt = encrypt_secret(e_password)
+        token, salt = set_password(e_password)
         with open("salted.bin", "wb") as file:
             file.write(salt)
 
         with open("ciphered.bin", "wb") as file:
             file.write(token)
+        print("Added!")
 
     elif option == "2":
         token = add_secret(e_password)
         with open("ciphered.bin", "ab+") as file:
             file.write(token)
+            print("Added!")
 
     elif option == "3":
         clear_text = decrypt_secret(e_password)
@@ -49,28 +51,23 @@ def execute_option(option="", e_password=b""):
 
 def display_options():
     print(
-        "This program will let you encrypt your secret text with very strong encryption algorithm and decrypt it "
-        "whenever needed.\n"
-        "You can also add text later with the same password. You can also delete everything and enter new text.\n"
-        "But if you loose your password there is no way to recover your message.\n"
-        "So memorize the password and store it in a safe place.\n"
+        "Welcome to your own secret text manager!"
     )
     disp = [
         [
             1,
-            "encrypt_secret",
-            "To clear & reset previous secret text (if any) and input new secret text with a new "
-            "password.",
+            "Set or Reset Password",
+            "It will delete all the stored text and start new",
         ],
         [
             2,
-            "add_secret",
-            "To add new secret text to already stored text with your existing password.",
+            "Add Secret",
+            "It will encrypt your text and save it.",
         ],
         [
             3,
-            "decrypt_secret",
-            "To decrypt already stored secret text with your existing password.",
+            "Show Secret",
+            "It will decrypt and show your saved text.",
         ],
         [4, "exit_program", "To exit or quit the program."],
     ]
@@ -106,7 +103,7 @@ def get_fernet(password, state=""):
         return Fernet(key)
 
 
-def encrypt_secret(password):
+def set_password(password):
     f, salt = get_fernet(password, "new")
 
     user_secret = input("Your secret message here: ")
